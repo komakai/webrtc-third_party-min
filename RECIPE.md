@@ -77,8 +77,8 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
   - `CMakeLists.txt` adds every library, and defines `chromium_src_root`, an
     interface target that puts the directory above this one on the include
     path (code includes these libraries as `third_party/<lib>/...`).
-    `WEBRTC_MIN` (default OFF here; webrtc-min's top level turns it on)
-    builds only what WebRTC uses.
+    `WEBRTC_MIN` (default OFF here; webrtc-min's top level takes it from the
+    `WEBRTC_MIN` environment variable) builds only what WebRTC uses.
   - `abseil-cpp/CMakeLists.txt`: Chromium's `absl` component (182 gn targets)
     as one `absl` library. With `WEBRTC_MIN`, the 37 sources of the Abseil
     targets WebRTC doesn't depend on (flags, most of log, random, status,
@@ -92,6 +92,28 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
 - **iOS** (commit "Support iOS"): `cpu_features`, `jni_zero` and
   `libjpeg_turbo` are added only for Android, and libyuv is built without
   MJPEG support (`LIBYUV_DISABLE_JPEG`, as gn does for iOS).
+- **Only the files WebRTC links, with `WEBRTC_MIN`** (commit "Leave out
+  unused files with WEBRTC_MIN"): `CMakeLists.txt` ends with
+  `webrtc_min_exclude()` lists of the files of `absl`, `boringssl`, `libyuv`,
+  `opus` and `sframe` that the linker loads from none of their archives when
+  linking WebRTC for Android arm64 or iOS arm64 (BoringSSL's X.509/PKI and
+  trust tokens, Abseil's Cord and symbolizer, libyuv's MJPEG/ARGB
+  conversions, Opus's projection coder, ...). Files with CPU- or OS-specific
+  code (`cpu_*`, `rand/*`, `thread_*`, per-CPU SIMD files, ...) are kept even
+  when unused there, as another ABI may need them. BoringSSL's assembly is
+  filtered by OS instead (no `-win.S`; `-linux.S` on Android, `-apple.S` on
+  iOS), and on Android libjpeg_turbo isn't built at all (WebRTC never
+  converts MJPEG). The libraries WebRTC links are the same size, with the
+  same exports, as without `WEBRTC_MIN`; for armeabi-v7a, x86,
+  x86_64 and the x86_64 iOS simulator, no kept file refers to a symbol that
+  only an excluded file defines.
+
+  To regenerate the lists (e.g. after an update), build webrtc-min for
+  Android arm64 and iOS arm64 with `WEBRTC_MIN=0` and run its
+  `tools/find_unused_third_party.py <android-out> <ios-out>`, which relinks
+  both with lld `--why-extract` / ld64 `-map`. `webrtc_min_exclude()` warns
+  about listed files a library no longer has.
+
 ## Updating to a new upstream revision
 
 `main-min` isn't a git fork of upstream (no upstream history), so updates are
@@ -106,3 +128,4 @@ re-applied rather than merged:
 4. Update the source lists in the CMake files for files upstream added,
    removed or renamed (compare with the new BUILD.gn in the snapshot commit),
    then build webrtc-min and compare with a gn build.
+5. Regenerate the `WEBRTC_MIN` lists (see above).
