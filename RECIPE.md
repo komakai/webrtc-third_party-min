@@ -1,7 +1,7 @@
 # RECIPE: webrtc-third_party-min
 
 How the `main-min` branch of this repository was made from upstream, and
-everything that differs from it. It is the `third_party/` submodule of [webrtc-min](https://github.com/komakai/webrtc-min): the parts of Chromium's `third_party/` that WebRTC's Android library uses, with the libraries Chromium checks out inside it as nested submodules.
+everything that differs from it. It is the `third_party/` submodule of [webrtc-min](https://github.com/komakai/webrtc-min): the parts of Chromium's `third_party/` that WebRTC's Android library and iOS framework use, with the libraries Chromium checks out inside it as nested submodules.
 
 ## Upstream
 
@@ -89,7 +89,9 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
     JNI entry points in `common_apis.cc` are always linked (gn links it with
     `--whole-archive`).
   - `rnnoise/` and `pffft/CMakeLists.txt`: one library each.
-
+- **iOS** (commit "Support iOS"): `cpu_features`, `jni_zero` and
+  `libjpeg_turbo` are added only for Android, and libyuv is built without
+  MJPEG support (`LIBYUV_DISABLE_JPEG`, as gn does for iOS).
 ## Updating to a new upstream revision
 
 `main-min` isn't a git fork of upstream (no upstream history), so updates are
