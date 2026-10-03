@@ -1,0 +1,24 @@
+[submodule "boringssl/src"]
+	path = boringssl/src
+	url = https://github.com/komakai/boringssl-min.git
+	branch = main-min
+[submodule "cpu_features/src"]
+	path = cpu_features/src
+	url = https://github.com/komakai/cpu_features-min.git
+	branch = main-min
+[submodule "libjpeg_turbo"]
+	path = libjpeg_turbo
+	url = https://github.com/komakai/libjpeg_turbo-min.git
+	branch = main-min
+[submodule "libsrtp"]
+	path = libsrtp
+	url = https://github.com/komakai/libsrtp-min.git
+	branch = main-min
+[submodule "libyuv"]
+	path = libyuv
+	url = https://github.com/komakai/libyuv-min.git
+	branch = main-min
+[submodule "sframe/src"]
+	path = sframe/src
+	url = https://github.com/komakai/sframe-min.git
+	branch = main-min
