@@ -1,0 +1,17 @@
+Name: Sframe
+Short Name: sframe
+URL: https://github.com/cisco/sframe
+Version: N/A
+Revision: db604c8f1960dc2047f1d708d521b28dba058dc9
+Update Mechanism: Manual
+License: BSD-2-Clause, MIT
+License File: src/LICENSE
+Security Critical: yes
+Shipped: yes
+
+Description:
+Implementation of RFC 9605 (SFrame: Secure Frame) for end-to-end media
+encryption.
+
+Local Modifications:
+None.
