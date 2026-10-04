@@ -74,6 +74,11 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
   `jni_zero/system_jni_unchecked_exceptions/`, as gn generates them with
   `jni_zero.py` (the system classes from android-37.0's `android.jar`). See
   webrtc-src-min's RECIPE.md for how to regenerate them.
+- **jni_zero's pregenerated Java** (commit "Add jni_zero's pregenerated Java"):
+  `jni_zero/generated_java/` holds `JniZeroJni.java` and `CommonApisJni.java`,
+  from gn's `gen/third_party/jni_zero/generate_jni.srcjar` (without its
+  placeholder `GEN_JNI`), for webrtc-min's Gradle build of libwebrtc.aar. The
+  final `GEN_JNI` is in webrtc-src-min.
 - **CMake instead of gn** (commit "Add CMake build"):
   - `CMakeLists.txt` adds every library, and defines `chromium_src_root`, an
     interface target that puts the directory above this one on the include
