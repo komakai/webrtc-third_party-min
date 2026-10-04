@@ -66,8 +66,9 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
   submodules).
 - **Nested submodules** (`.gitmodules`), at the paths Chromium's DEPS uses:
   `boringssl/src` (boringssl-min), `cpu_features/src` (cpu_features-min),
-  `libjpeg_turbo` (libjpeg_turbo-min), `libsrtp` (libsrtp-min), `libyuv`
-  (libyuv-min) and `sframe/src` (sframe-min).
+  `libsrtp` (libsrtp-min), `libyuv` (libyuv-min) and `sframe/src`
+  (sframe-min). (Chromium's `libjpeg_turbo` isn't included: see "No MJPEG"
+  below.)
 - **jni_zero's pregenerated headers** (commit "Add jni_zero's pregenerated
   JNI headers"): `jni_zero/generate_jni/`, `jni_zero/system_jni/` and
   `jni_zero/system_jni_unchecked_exceptions/`, as gn generates them with
@@ -89,9 +90,15 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
     JNI entry points in `common_apis.cc` are always linked (gn links it with
     `--whole-archive`).
   - `rnnoise/` and `pffft/CMakeLists.txt`: one library each.
-- **iOS** (commit "Support iOS"): `cpu_features`, `jni_zero` and
-  `libjpeg_turbo` are added only for Android, and libyuv is built without
-  MJPEG support (`LIBYUV_DISABLE_JPEG`, as gn does for iOS).
+- **iOS** (commit "Support iOS"): `cpu_features` and `jni_zero` are added
+  only for Android.
+- **No MJPEG** (commit "Build libyuv without MJPEG; drop libjpeg_turbo"):
+  libyuv is always built with `LIBYUV_DISABLE_JPEG`, so libjpeg_turbo (and its
+  libjpeg_turbo-min submodule) is gone. WebRTC never converts MJPEG: its one
+  `libyuv::MJPGToI420` call (`common_video/libyuv/webrtc_libyuv.cc`) is under
+  `HAVE_LIBYUV_JPEG`, which neither gn nor this build defines, and linking
+  WebRTC for Android with libjpeg present loaded none of it. gn builds libyuv
+  without MJPEG for iOS too.
 - **Only the files WebRTC links, with `WEBRTC_MIN`** (commit "Leave out
   unused files with WEBRTC_MIN"): `CMakeLists.txt` ends with
   `webrtc_min_exclude()` lists of the files of `absl`, `boringssl`, `libyuv`,
@@ -102,8 +109,7 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
   code (`cpu_*`, `rand/*`, `thread_*`, per-CPU SIMD files, ...) are kept even
   when unused there, as another ABI may need them. BoringSSL's assembly is
   filtered by OS instead (no `-win.S`; `-linux.S` on Android, `-apple.S` on
-  iOS), and on Android libjpeg_turbo isn't built at all (WebRTC never
-  converts MJPEG). The libraries WebRTC links are the same size, with the
+  iOS). The libraries WebRTC links are the same size, with the
   same exports, as without `WEBRTC_MIN`; for armeabi-v7a, x86,
   x86_64 and the x86_64 iOS simulator, no kept file refers to a symbol that
   only an excluded file defines.

@@ -19,13 +19,10 @@ if(ANDROID)
   add_subdirectory(cpu_features/src cpu_features)
   add_subdirectory(jni_zero)
 endif()
-if(ANDROID AND NOT WEBRTC_MIN)
-  add_subdirectory(libjpeg_turbo)
-else()
-  # libyuv without MJPEG support, and so without libjpeg: as in gn for iOS,
-  # and with WEBRTC_MIN on Android too, as WebRTC never converts MJPEG.
-  set(LIBYUV_DISABLE_JPEG ON CACHE BOOL "" FORCE)
-endif()
+# libyuv without MJPEG support, and so without libjpeg: WebRTC never converts
+# MJPEG (its only MJPGToI420 call is under HAVE_LIBYUV_JPEG, which nothing
+# defines), as the linker confirms: it loads no libjpeg code.
+set(LIBYUV_DISABLE_JPEG ON CACHE BOOL "" FORCE)
 add_subdirectory(libsrtp)
 add_subdirectory(libyuv)
 add_subdirectory(opus)
@@ -183,11 +180,8 @@ if(WEBRTC_MIN)
   endif()
   set_property(TARGET boringssl PROPERTY SOURCES ${sources})
   webrtc_min_exclude(libyuv
-    source/convert_jpeg.cc
     source/convert_to_argb.cc
     source/convert_to_i420.cc
-    source/mjpeg_decoder.cc
-    source/mjpeg_validate.cc
     source/rotate_argb.cc
     source/scale_rgb.cc
   )
