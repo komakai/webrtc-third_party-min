@@ -121,7 +121,7 @@ git ls-files | grep -E '(^|/)(BUILD\.gn|[^/]*\.gni|DEPS|OWNERS|DIR_METADATA|PRES
 
   To regenerate the lists (e.g. after an update), build webrtc-min for
   Android arm64 and iOS arm64 with `WEBRTC_MIN=0` and run its
-  `tools/find_unused_third_party.py <android-out> <ios-out>`, which relinks
+  `regen/find_unused_third_party.py <android-out> <ios-out>`, which relinks
   both with lld `--why-extract` / ld64 `-map`. `webrtc_min_exclude()` warns
   about listed files a library no longer has.
 
